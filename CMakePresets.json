@@ -1,0 +1,28 @@
+{
+	"version": 3,
+	"cmakeMinimumRequired": {
+		"major": 3,
+		"minor": 21,
+		"patch": 0
+	},
+	"configurePresets": [
+		{
+			"name": "xp-x86-release",
+			"displayName": "Windows XP x86 Release (MSVC 14.16)",
+			"generator": "Visual Studio 15 2017",
+			"architecture": "Win32",
+			"toolset": "v141_xp,version=14.16",
+			"binaryDir": "${sourceDir}/build/xp-x86-release",
+			"cacheVariables": {
+				"QUICKHOST_DEPS_ROOT": "$env{QUICKHOST_DEPS_ROOT}"
+			}
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "xp-x86-release",
+			"configurePreset": "xp-x86-release",
+			"configuration": "Release"
+		}
+	]
+}
