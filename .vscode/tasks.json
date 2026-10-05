@@ -1,0 +1,53 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "QuickHost: Check prerequisites",
+			"type": "process",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/scripts/check-build-environment.ps1"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "QuickHost: Configure XP x86",
+			"type": "process",
+			"command": "cmake",
+			"args": [
+				"--preset",
+				"xp-x86-release"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "QuickHost: Build XP x86 Release",
+			"type": "process",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"--preset",
+				"xp-x86-release"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"dependsOn": "QuickHost: Configure XP x86",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": "$msCompile"
+		}
+	]
+}
