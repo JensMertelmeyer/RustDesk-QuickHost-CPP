@@ -18,6 +18,9 @@ and select:
 - Windows XP support for C++ (v141_xp), including the Windows 7.1A SDK.
 - A Windows 10 SDK for the other Windows API headers/tools.
 
+As per [[https://learn.microsoft.com/en-gb/cpp/build/configuring-programs-for-windows-xp?view=msvc-170]], there is no paid subscription needed, but an account is required.
+
+
 Do not substitute only the current MSVC toolset. The supplied preset deliberately
 uses the Visual Studio 2017 generator. Installing just v141 into a newer Visual
 Studio instance does not satisfy that preset.
