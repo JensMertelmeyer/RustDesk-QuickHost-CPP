@@ -50,14 +50,28 @@ with XP-compatible settings. Headers alone are insufficient; this checkout's
 zstd directory contains no compiled library.
 
 The repository's vcpkg overlay is a starting point for libvpx, libyuv and zstd.
-From a PowerShell terminal in the repository:
+From a PowerShell terminal in the **QuickHost repository root**, capture its
+absolute path before changing directories. Set `$vcpkgRoot` to your actual vcpkg
+checkout (the example below uses `C:\dev\vcpkg`):
 
 ```powershell
-git clone https://github.com/microsoft/vcpkg C:\dev\vcpkg
-& C:\dev\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+$repo = (Resolve-Path .).Path
+$vcpkgRoot = 'C:\dev\vcpkg'
+$overlayPorts = Join-Path $repo 'third_party\vcpkg_overlays\ports'
+$overlayTriplets = Join-Path $repo 'third_party\vcpkg_overlays\triplets'
+if (-not (Test-Path (Join-Path $overlayTriplets 'x86-windows-static-v141xp.cmake'))) { throw 'Run these setup commands from the QuickHost repository root.' }
+git clone https://github.com/microsoft/vcpkg $vcpkgRoot
+& "$vcpkgRoot\bootstrap-vcpkg.bat" -disableMetrics
 $env:VCPKG_VISUAL_STUDIO_PATH = 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools'
-& C:\dev\vcpkg\vcpkg.exe install libvpx libyuv zstd --triplet x86-windows-static-v141xp --overlay-ports="$PWD\third_party\vcpkg_overlays\ports" --overlay-triplets="$PWD\third_party\vcpkg_overlays\triplets"
+& "$vcpkgRoot\vcpkg.exe" install libvpx libyuv zstd --triplet x86-windows-static-v141xp "--overlay-ports=$overlayPorts" "--overlay-triplets=$overlayTriplets"
 ```
+
+Skip cloning and bootstrapping if that checkout is already ready. This custom
+triplet is supplied by QuickHost, not vcpkg, so it will not appear in vcpkg's
+built-in triplet list. `Invalid triplet` usually means the overlay path is wrong
+or missing. In particular, `$PWD\third_party\...` is wrong from inside the vcpkg
+directory. The absolute paths captured above work from either directory. Add
+`--dry-run` to the install command to check the dependency plan without building.
 
 Adjust the Visual Studio path if using another edition or installation directory.
 This dependency command has not been tested here. Current vcpkg ports may require
