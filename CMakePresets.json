@@ -9,7 +9,7 @@
 		{
 			"name": "xp-x86-release",
 			"displayName": "Windows XP x86 Release (MSVC 14.16)",
-			"generator": "Visual Studio 15 2017",
+			"generator": "Visual Studio 16 2019",
 			"architecture": "Win32",
 			"toolset": "v141_xp,version=14.16",
 			"binaryDir": "${sourceDir}/build/xp-x86-release",
