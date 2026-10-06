@@ -9,7 +9,7 @@ dependency imports and testing the resulting executable on XP.
 ## 1. Install the compiler
 
 Use Microsoft's [older Visual Studio downloads](https://visualstudio.microsoft.com/vs/older-downloads/)
-to obtain **Build Tools for Visual Studio 2017** (15.9), or Visual Studio 2017.
+to obtain **Build Tools for Visual Studio 2019**, or Visual Studio 2019.
 Microsoft may require an account for older downloads. Run the installer yourself
 and select:
 
@@ -22,11 +22,12 @@ As per [[https://learn.microsoft.com/en-gb/cpp/build/configuring-programs-for-wi
 
 
 Do not substitute only the current MSVC toolset. The supplied preset deliberately
-uses the Visual Studio 2017 generator. Installing just v141 into a newer Visual
-Studio instance does not satisfy that preset.
+uses the Visual Studio 2019 generator with the older v141_xp toolset. Build Tools
+2017 can also provide the XP compiler, but requires changing the preset generator
+to `Visual Studio 15 2017`.
 
 Install [CMake](https://cmake.org/download/) **3.21 or newer**, adding it to PATH.
-The generator requires CMake support for Visual Studio 2017. Git is also needed
+The generator requires CMake support for Visual Studio 2019. Git is also needed
 for vcpkg. VS Code's Microsoft C/C++ and CMake Tools extensions are optional;
 the build task itself does not require them. Restart VS Code after installation
 so it inherits the updated PATH.
@@ -47,7 +48,7 @@ From a PowerShell terminal in the repository:
 ```powershell
 git clone https://github.com/microsoft/vcpkg C:\dev\vcpkg
 & C:\dev\vcpkg\bootstrap-vcpkg.bat -disableMetrics
-$env:VCPKG_VISUAL_STUDIO_PATH = 'C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools'
+$env:VCPKG_VISUAL_STUDIO_PATH = 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools'
 & C:\dev\vcpkg\vcpkg.exe install libvpx libyuv zstd --triplet x86-windows-static-v141xp --overlay-ports="$PWD\third_party\vcpkg_overlays\ports" --overlay-triplets="$PWD\third_party\vcpkg_overlays\triplets"
 ```
 
@@ -63,7 +64,7 @@ uses v141_xp. The triplet itself selects v141/14.16, not an XP SDK for every
 other dependency; inspect those libraries separately.
 
 Use the bundled libsodium project for the remaining dependency. In the **Developer
-PowerShell/Command Prompt for VS 2017**, change to this repository. The following
+PowerShell/Command Prompt for VS 2019**, change to this repository. The following
 are PowerShell commands (MSBuild must be available in that shell):
 
 ```powershell

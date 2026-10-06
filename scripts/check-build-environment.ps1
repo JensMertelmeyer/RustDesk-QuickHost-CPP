@@ -18,23 +18,36 @@ if ($cmake) {
 
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
 if (Test-Path $vswhere) {
-    $installations = @(& $vswhere -products '*' -version '[15.0,16.0)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath)
+    $installations = @(& $vswhere -products '*' -version '[15.0,17.0)' -property installationPath)
+    $compatibleInstallations = 0
+    $toolchainIssues = @()
     if ($installations.Count -eq 0) {
-        $missing += 'Visual Studio 2017 or Build Tools 2017 with the C++ workload'
+        $missing += 'Visual Studio / Build Tools 2017 or 2019 with MSVC 14.16 and v141_xp'
     }
     foreach ($installation in $installations) {
         Write-Output "Visual Studio: $installation"
         $toolsets = @(Get-ChildItem (Join-Path $installation 'VC\Tools\MSVC') -Directory -Filter '14.16.*' -ErrorAction SilentlyContinue)
         if ($toolsets.Count -eq 0) {
-            $missing += "MSVC 14.16 in $installation"
+            $toolchainIssues += "MSVC 14.16 in $installation"
         }
-        $xpProps = Join-Path $installation 'Common7\IDE\VC\VCTargets\Platforms\Win32\PlatformToolsets\v141_xp\Toolset.props'
-        if (-not (Test-Path $xpProps)) {
-            $missing += "Windows XP support for C++ (v141_xp) in $installation"
+        $xpPropsPaths = @(
+            (Join-Path $installation 'Common7\IDE\VC\VCTargets\Platforms\Win32\PlatformToolsets\v141_xp\Toolset.props'),
+            (Join-Path $installation 'MSBuild\Microsoft\VC\*\Platforms\Win32\PlatformToolsets\v141_xp\Toolset.props')
+        )
+        $xpProps = @($xpPropsPaths | Where-Object { Test-Path $_ })
+        if ($xpProps.Count -eq 0) {
+            $toolchainIssues += "Windows XP support for C++ (v141_xp) in $installation"
+        }
+        if ($toolsets.Count -gt 0 -and $xpProps.Count -gt 0) {
+            $compatibleInstallations++
+            Write-Output "XP toolchain found: MSVC $($toolsets[0].Name), v141_xp"
         }
     }
+    if ($compatibleInstallations -eq 0) {
+        $missing += $toolchainIssues
+    }
 } else {
-    $missing += 'Visual Studio Installer / Build Tools 2017'
+    $missing += 'Visual Studio Installer / Build Tools 2017 or 2019'
 }
 
 foreach ($asset in @('rustdesk_app.ico', 'rustdesk_tray.ico', 'qslogo.png', 'material_more_vert.png', 'material_refresh.png')) {
