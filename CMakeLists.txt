@@ -52,7 +52,7 @@ add_executable(RustDeskQS WIN32
 target_compile_features(RustDeskQS PRIVATE cxx_std_17)
 target_include_directories(RustDeskQS PRIVATE src)
 target_compile_definitions(RustDeskQS PRIVATE
-    UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN
+    UNICODE _UNICODE WIN32_LEAN_AND_MEAN
     WINVER=0x0501 _WIN32_WINNT=0x0501 SODIUM_STATIC)
 target_compile_options(RustDeskQS PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/utf-8>" "$<$<COMPILE_LANGUAGE:CXX>:/W3>")
 target_link_options(RustDeskQS PRIVATE /SUBSYSTEM:WINDOWS,5.01)
