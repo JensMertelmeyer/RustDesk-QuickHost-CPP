@@ -66,17 +66,22 @@ foreach ($asset in @('rustdesk_app.ico', 'rustdesk_tray.ico', 'qslogo.png', 'mat
     }
 }
 
-if (-not $env:QUICKHOST_DEPS_ROOT) {
-    $missing += 'QUICKHOST_DEPS_ROOT pointing to x86 /MT dependency libraries and headers'
+$dependencyRoot = $env:QUICKHOST_DEPS_ROOT
+if (-not $dependencyRoot) {
+    $dependencyRoot = Join-Path $root 'vcpkg\installed\x86-windows-static-v141xp'
+}
+if (-not (Test-Path (Join-Path $dependencyRoot 'include') -PathType Container) -or
+    -not (Test-Path (Join-Path $dependencyRoot 'lib') -PathType Container)) {
+    $missing += "Dependency include/ and lib/ directories in $dependencyRoot (build dependencies or set QUICKHOST_DEPS_ROOT)"
 } else {
-    Write-Output "Dependency prefix: $env:QUICKHOST_DEPS_ROOT"
+    Write-Output "Dependency prefix: $dependencyRoot"
     foreach ($header in @('sodium.h', 'vpx\vp8cx.h', 'libyuv\convert.h', 'zstd.h')) {
-        if (-not (Test-Path (Join-Path $env:QUICKHOST_DEPS_ROOT "include\$header"))) {
+        if (-not (Test-Path (Join-Path $dependencyRoot "include\$header"))) {
             $missing += "Dependency header: $header"
         }
     }
     foreach ($names in @(@('libsodium.lib', 'sodium.lib'), @('vpx.lib', 'libvpx.lib'), @('yuv.lib', 'libyuv.lib'), @('zstd_static.lib', 'libzstd_static.lib', 'zstd.lib', 'libzstd.lib'))) {
-        $found = @($names | Where-Object { Test-Path (Join-Path $env:QUICKHOST_DEPS_ROOT "lib\$_") })
+        $found = @($names | Where-Object { Test-Path (Join-Path $dependencyRoot "lib\$_") })
         if ($found.Count -eq 0) {
             $missing += "Dependency library: $($names -join ' or ')"
         }
