@@ -62,11 +62,10 @@ Copy-Item "$repo\third_party\libsodium\src\libsodium\include\sodium" "$deps\incl
 
 ## 4. Build QuickHost
 
-Save the dependency path and build:
+Build from the project root. CMake automatically uses
+`vcpkg/installed/x86-windows-static-v141xp` inside this project:
 
 ```powershell
-$env:QUICKHOST_DEPS_ROOT = $deps
-[Environment]::SetEnvironmentVariable('QUICKHOST_DEPS_ROOT', $deps, 'User')
 cmake --preset xp-x86-release
 if ($LASTEXITCODE -ne 0) { throw 'QuickHost configuration failed' }
 cmake --build --preset xp-x86-release
@@ -74,9 +73,9 @@ cmake --build --preset xp-x86-release
 
 Output: **`build/xp-x86-release/bin/Release/RustDeskQS.exe`**.
 
-For subsequent builds, completely restart VS Code once to load the saved
-environment variable, then use **Ctrl+Shift+B**. It configures and builds automatically.
+In VS Code, use **Ctrl+Shift+B**. It configures and builds automatically.
 To check setup, use **Terminal > Run Task > QuickHost: Check prerequisites**.
+Set `QUICKHOST_DEPS_ROOT` only if your dependencies are stored elsewhere.
 
 This setup built successfully on our machine. A fresh-machine installation has
 not been retested, and XP runtime compatibility still requires testing on XP.

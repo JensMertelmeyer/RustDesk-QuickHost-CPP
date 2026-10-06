@@ -17,6 +17,10 @@ endif()
 set(CMAKE_CONFIGURATION_TYPES "Release" CACHE STRING "Supported configurations" FORCE)
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
 set(QUICKHOST_DEPS_ROOT "" CACHE PATH "Prefix containing x86 /MT dependency include/ and lib/ directories")
+if(NOT QUICKHOST_DEPS_ROOT)
+    set(QUICKHOST_DEPS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x86-windows-static-v141xp"
+        CACHE PATH "Prefix containing x86 /MT dependency include/ and lib/ directories" FORCE)
+endif()
 if(NOT IS_DIRECTORY "${QUICKHOST_DEPS_ROOT}/include" OR
    NOT IS_DIRECTORY "${QUICKHOST_DEPS_ROOT}/lib")
     message(FATAL_ERROR "Set QUICKHOST_DEPS_ROOT to a prefix containing include/ and lib/ (see docs/build-windows.md).")
