@@ -14,6 +14,7 @@ Microsoft may require an account for older downloads. Run the installer yourself
 and select:
 
 - Desktop development with C++ / Visual C++ build tools.
+- Standard VS 2019 MSVC v142 x86/x64 tools (supplies the v160 MSBuild host files).
 - MSVC v141 x86/x64 tools, version 14.16.
 - Windows XP support for C++ (v141_xp), including the Windows 7.1A SDK.
 - A Windows 10 SDK for the other Windows API headers/tools.
@@ -25,6 +26,12 @@ Do not substitute only the current MSVC toolset. The supplied preset deliberatel
 uses the Visual Studio 2019 generator with the older v141_xp toolset. Build Tools
 2017 can also provide the XP compiler, but requires changing the preset generator
 to `Visual Studio 15 2017`.
+
+The VS 2019 generator also needs that installation's standard C++ MSBuild host
+files. Installing only the optional v141/XP components can leave
+`MSBuild/Microsoft/VC/v160/Microsoft.Cpp.Default.props` missing. If so, modify the
+installation to add the C++ workload and v142 tools. The preset still compiles
+QuickHost with v141_xp/14.16, not v142.
 
 Install [CMake](https://cmake.org/download/) **3.21 or newer**, adding it to PATH.
 The generator requires CMake support for Visual Studio 2019. Git is also needed
