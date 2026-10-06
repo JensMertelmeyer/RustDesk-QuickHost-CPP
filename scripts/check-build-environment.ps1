@@ -19,6 +19,7 @@ if ($cmake) {
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
 if (Test-Path $vswhere) {
     $installations = @(& $vswhere -products '*' -version '[15.0,17.0)' -property installationPath)
+    $vs2019Installations = @(& $vswhere -products '*' -version '[16.0,17.0)' -property installationPath)
     $compatibleInstallations = 0
     $toolchainIssues = @()
     if ($installations.Count -eq 0) {
@@ -39,8 +40,17 @@ if (Test-Path $vswhere) {
             $toolchainIssues += "Windows XP support for C++ (v141_xp) in $installation"
         }
         if ($toolsets.Count -gt 0 -and $xpProps.Count -gt 0) {
-            $compatibleInstallations++
             Write-Output "XP toolchain found: MSVC $($toolsets[0].Name), v141_xp"
+            $hostTargetsFound = $true
+            if ($vs2019Installations -contains $installation) {
+                $hostTargetsFound = Test-Path (Join-Path $installation 'MSBuild\Microsoft\VC\v160\Microsoft.Cpp.Default.props')
+                if (-not $hostTargetsFound) {
+                    $toolchainIssues += "VS 2019 C++ host build files (v160\Microsoft.Cpp.Default.props): modify $installation and install the C++ build-tools workload with MSVC v142"
+                }
+            }
+            if ($hostTargetsFound) {
+                $compatibleInstallations++
+            }
         }
     }
     if ($compatibleInstallations -eq 0) {
