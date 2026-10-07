@@ -13737,7 +13737,7 @@ void PortableHostApp::LoadOrCreateConfig() {
     config_.id_server = PORTABLE_HOST_DEFAULT_ID_SERVER;
     config_.relay_server = PORTABLE_HOST_DEFAULT_RELAY_SERVER;
     config_.api_server.clear();
-    config_.key = L"OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";
+    config_.key = PORTABLE_HOST_DEFAULT_KEY;
     config_.direct_access_enabled = true;
     config_.direct_access_port = kDefaultDirectAccessPort;
     config_.preferred_codec = NormalizePreferredCodec(L"h264");
@@ -13795,7 +13795,7 @@ void PortableHostApp::LoadOrCreateConfig() {
   }
 
   if (config_.key.empty() && IsRustDeskPublicHost(id_server.host)) {
-    config_.key = L"OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";
+    config_.key = PORTABLE_HOST_DEFAULT_KEY;
   }
 
   if (config_.host_id.empty()) {
