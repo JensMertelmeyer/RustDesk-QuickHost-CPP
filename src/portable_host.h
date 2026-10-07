@@ -16,6 +16,8 @@
 #include <vector>
 
 #define PORTABLE_HOST_APP_NAME L"Kdesign QuickSupport"
+#define PORTABLE_HOST_DEFAULT_ID_SERVER L"rs-ny.rustdesk.com:21116"
+#define PORTABLE_HOST_DEFAULT_RELAY_SERVER L"rs-ny.rustdesk.com:21117"
 
 inline const wchar_t* PortableHostWindowClassName() noexcept {
   return L"RustDeskCppPortableHostWindow";
