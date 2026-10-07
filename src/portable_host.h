@@ -15,6 +15,8 @@
 #include <utility>
 #include <vector>
 
+#define PORTABLE_HOST_APP_NAME L"RustDeskQS"
+
 inline const wchar_t* PortableHostWindowClassName() noexcept {
   return L"RustDeskCppPortableHostWindow";
 }
