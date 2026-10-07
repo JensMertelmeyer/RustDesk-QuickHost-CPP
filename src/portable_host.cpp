@@ -13734,10 +13734,10 @@ void PortableHostApp::LoadOrCreateConfig() {
   fixed_password_.clear();
 
   if (!FileExists(config_.config_path)) {
-    config_.id_server = L"rs-ny.rustdesk.com:21116";
-    config_.relay_server = L"rs-ny.rustdesk.com:21117";
+    config_.id_server = PORTABLE_HOST_DEFAULT_ID_SERVER;
+    config_.relay_server = PORTABLE_HOST_DEFAULT_RELAY_SERVER;
     config_.api_server.clear();
-    config_.key = L"OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";
+    config_.key = PORTABLE_HOST_DEFAULT_KEY;
     config_.direct_access_enabled = true;
     config_.direct_access_port = kDefaultDirectAccessPort;
     config_.preferred_codec = NormalizePreferredCodec(L"h264");
@@ -13750,8 +13750,8 @@ void PortableHostApp::LoadOrCreateConfig() {
     return;
   }
 
-  config_.id_server = ReadIniString(L"server", L"id_server", L"rs-ny.rustdesk.com:21116");
-  config_.relay_server = ReadIniString(L"server", L"relay_server", L"rs-ny.rustdesk.com:21117");
+  config_.id_server = ReadIniString(L"server", L"id_server", PORTABLE_HOST_DEFAULT_ID_SERVER);
+  config_.relay_server = ReadIniString(L"server", L"relay_server", PORTABLE_HOST_DEFAULT_RELAY_SERVER);
   config_.api_server = ReadIniString(L"server", L"api_server", L"");
   config_.key = ReadIniString(L"server", L"key", L"");
   config_.host_id = ReadIniString(L"host", L"id", L"");
@@ -13779,13 +13779,13 @@ void PortableHostApp::LoadOrCreateConfig() {
   const ParsedHostPort relay_server = ParseHostPort(config_.relay_server, kDefaultRelayServerPort);
 
   if (config_.id_server.empty() || id_server.host.empty()) {
-    config_.id_server = L"rs-ny.rustdesk.com:21116";
+    config_.id_server = PORTABLE_HOST_DEFAULT_ID_SERVER;
   } else {
     config_.id_server = BuildDisplayEndpoint(id_server.host, id_server.port);
   }
 
   if (config_.relay_server.empty() || relay_server.host.empty()) {
-    config_.relay_server = L"rs-ny.rustdesk.com:21117";
+    config_.relay_server = PORTABLE_HOST_DEFAULT_RELAY_SERVER;
   } else {
     config_.relay_server = BuildDisplayEndpoint(relay_server.host, relay_server.port);
   }
@@ -13795,7 +13795,7 @@ void PortableHostApp::LoadOrCreateConfig() {
   }
 
   if (config_.key.empty() && IsRustDeskPublicHost(id_server.host)) {
-    config_.key = L"OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";
+    config_.key = PORTABLE_HOST_DEFAULT_KEY;
   }
 
   if (config_.host_id.empty()) {
@@ -13869,11 +13869,11 @@ void PortableHostApp::SaveConfig() const {
   WriteIniString(
       L"server",
       L"id_server",
-      config_.id_server.empty() ? L"rs-ny.rustdesk.com:21116" : config_.id_server);
+      config_.id_server.empty() ? PORTABLE_HOST_DEFAULT_ID_SERVER : config_.id_server);
   WriteIniString(
       L"server",
       L"relay_server",
-      config_.relay_server.empty() ? L"rs-ny.rustdesk.com:21117" : config_.relay_server);
+      config_.relay_server.empty() ? PORTABLE_HOST_DEFAULT_RELAY_SERVER : config_.relay_server);
   WriteIniString(L"server", L"api_server", config_.api_server);
   WriteIniString(L"server", L"key", config_.key);
 
