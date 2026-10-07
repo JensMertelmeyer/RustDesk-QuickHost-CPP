@@ -580,30 +580,30 @@ constexpr UINT kOptionsMenuLanguage = 1305;
 constexpr UINT kOptionsMenuAbout = 1306;
 constexpr UINT kTrayIconId = 1;
 
-constexpr COLORREF kWindowColor = RGB(35, 35, 35);
-constexpr COLORREF kPanelColor = RGB(18, 18, 18);
-constexpr COLORREF kCardColor = RGB(35, 35, 35);
-constexpr COLORREF kCardBorderColor = RGB(64, 64, 64);
-constexpr COLORREF kTextColor = RGB(255, 255, 255);
-constexpr COLORREF kMutedTextColor = RGB(184, 186, 191);
-constexpr COLORREF kAccentColor = RGB(48, 133, 255);
-constexpr COLORREF kSecondaryButtonColor = RGB(52, 54, 61);
-constexpr COLORREF kSecondaryButtonBorderColor = RGB(74, 77, 84);
-constexpr COLORREF kConnectionCardIdleFillColor = RGB(48, 49, 55);
-constexpr COLORREF kConnectionCardIdleBorderColor = RGB(101, 104, 113);
-constexpr COLORREF kConnectionCardConnectedFillColor = RGB(26, 48, 79);
-constexpr COLORREF kConnectionCardConnectedBorderColor = RGB(48, 133, 255);
-constexpr COLORREF kConnectionCardConnectedTextColor = RGB(97, 187, 255);
-constexpr COLORREF kConnectionNameAccentColor = RGB(255, 209, 84);
-constexpr COLORREF kDisabledButtonFillColor = RGB(78, 80, 86);
-constexpr COLORREF kDisabledButtonBorderColor = RGB(86, 88, 94);
-constexpr COLORREF kDisabledButtonTextColor = RGB(120, 122, 128);
-constexpr COLORREF kDisconnectButtonColor = RGB(255, 79, 62);
-constexpr COLORREF kDisconnectButtonPressedColor = RGB(237, 66, 50);
-constexpr COLORREF kDialogColor = RGB(27, 29, 34);
-constexpr COLORREF kAvatarColor = RGB(132, 85, 131);
-constexpr COLORREF kGoodColor = RGB(68, 204, 153);
-constexpr COLORREF kBadColor = RGB(232, 99, 99);
+constexpr COLORREF kWindowColor = RGB(245, 247, 250);
+constexpr COLORREF kPanelColor = RGB(255, 255, 255);
+constexpr COLORREF kCardColor = RGB(255, 255, 255);
+constexpr COLORREF kCardBorderColor = RGB(217, 222, 231);
+constexpr COLORREF kTextColor = RGB(35, 41, 50);
+constexpr COLORREF kMutedTextColor = RGB(91, 101, 114);
+constexpr COLORREF kAccentColor = RGB(31, 105, 194);
+constexpr COLORREF kSecondaryButtonColor = RGB(235, 239, 244);
+constexpr COLORREF kSecondaryButtonBorderColor = RGB(201, 209, 219);
+constexpr COLORREF kConnectionCardIdleFillColor = RGB(237, 241, 246);
+constexpr COLORREF kConnectionCardIdleBorderColor = RGB(199, 208, 219);
+constexpr COLORREF kConnectionCardConnectedFillColor = RGB(231, 242, 255);
+constexpr COLORREF kConnectionCardConnectedBorderColor = RGB(131, 184, 241);
+constexpr COLORREF kConnectionCardConnectedTextColor = RGB(24, 86, 155);
+constexpr COLORREF kConnectionNameAccentColor = RGB(138, 87, 0);
+constexpr COLORREF kDisabledButtonFillColor = RGB(229, 233, 238);
+constexpr COLORREF kDisabledButtonBorderColor = RGB(202, 209, 218);
+constexpr COLORREF kDisabledButtonTextColor = RGB(103, 111, 122);
+constexpr COLORREF kDisconnectButtonColor = RGB(205, 52, 43);
+constexpr COLORREF kDisconnectButtonPressedColor = RGB(175, 39, 32);
+constexpr COLORREF kDialogColor = RGB(245, 247, 250);
+constexpr COLORREF kAvatarColor = RGB(76, 101, 158);
+constexpr COLORREF kGoodColor = RGB(24, 126, 72);
+constexpr COLORREF kBadColor = RGB(190, 45, 45);
 constexpr int kLogoTargetWidth = 200;
 constexpr int kLogoTargetHeight = 64;
 constexpr int kDefaultIdServerPort = 21116;
@@ -12276,7 +12276,7 @@ LRESULT PortableHostApp::WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPA
         if (IsRendezvousRegistered()) {
           SetTextColor(dc, kGoodColor);
         } else if (server_state_ == ServerState::kReachable) {
-          SetTextColor(dc, RGB(120, 200, 255));
+          SetTextColor(dc, kConnectionCardConnectedTextColor);
         } else {
           SetTextColor(dc, kBadColor);
         }
@@ -12950,7 +12950,7 @@ void PortableHostApp::DrawConnectionStatusCard(HDC dc) const {
       content_rect.top + ScaleForSystemDpi(3),
       content_rect.left + dot_size,
       content_rect.top + ScaleForSystemDpi(3) + dot_size};
-  HBRUSH dot_brush = CreateSolidBrush(connected ? kGoodColor : RGB(165, 168, 174));
+  HBRUSH dot_brush = CreateSolidBrush(connected ? kGoodColor : RGB(133, 143, 155));
   if (dot_brush != nullptr) {
     HGDIOBJ old_brush = SelectObject(dc, dot_brush);
     HGDIOBJ old_pen = SelectObject(dc, GetStockObject(NULL_PEN));
@@ -12970,7 +12970,7 @@ void PortableHostApp::DrawConnectionStatusCard(HDC dc) const {
   status_rect.left = dot_rect.right + ScaleForSystemDpi(8);
   status_rect.top -= ScaleForSystemDpi(1);
   status_rect.bottom = status_rect.top + ScaleForSystemDpi(20);
-  SetTextColor(dc, connected ? kConnectionCardConnectedTextColor : RGB(244, 245, 247));
+  SetTextColor(dc, connected ? kConnectionCardConnectedTextColor : kTextColor);
   DrawTextW(dc, status_text.c_str(), -1, &status_rect, DT_LEFT | DT_SINGLELINE | DT_VCENTER);
 
   auto draw_labeled_value = [&](int top,
@@ -12997,8 +12997,8 @@ void PortableHostApp::DrawConnectionStatusCard(HDC dc) const {
       content_rect.top + ScaleForSystemDpi(24),
       remote_user_prefix,
       display_name,
-      connected ? RGB(224, 228, 234) : RGB(198, 201, 208),
-      connected ? kConnectionNameAccentColor : RGB(214, 217, 223));
+      kMutedTextColor,
+      connected ? kConnectionNameAccentColor : kTextColor);
 
   SelectObject(dc, old_font);
 }
@@ -13026,7 +13026,7 @@ bool PortableHostApp::DrawOwnerButton(const DRAWITEMSTRUCT* draw_item) const {
       : (secondary
             ? kSecondaryButtonBorderColor
             : (disconnect_button ? kDisconnectButtonColor : kWindowColor));
-  COLORREF text_color = icon_button ? RGB(222, 224, 228) : kTextColor;
+  COLORREF text_color = icon_button ? kMutedTextColor : kTextColor;
 
   if (disabled) {
     fill_color = icon_button ? kWindowColor : kDisabledButtonFillColor;
@@ -13037,17 +13037,17 @@ bool PortableHostApp::DrawOwnerButton(const DRAWITEMSTRUCT* draw_item) const {
       fill_color = kWindowColor;
       border_color = kWindowColor;
     } else if (primary) {
-      fill_color = RGB(32, 118, 244);
-      border_color = RGB(32, 118, 244);
+      fill_color = RGB(24, 91, 171);
+      border_color = RGB(24, 91, 171);
     } else if (disconnect_button) {
       fill_color = kDisconnectButtonPressedColor;
       border_color = kDisconnectButtonPressedColor;
     } else if (secondary) {
-      fill_color = RGB(61, 64, 72);
-      border_color = RGB(77, 80, 88);
+      fill_color = RGB(220, 226, 234);
+      border_color = RGB(184, 195, 208);
     } else {
-      fill_color = RGB(55, 57, 64);
-      border_color = RGB(70, 72, 79);
+      fill_color = RGB(235, 239, 244);
+      border_color = RGB(201, 209, 219);
     }
   }
 
@@ -13190,7 +13190,7 @@ LRESULT PortableHostApp::IncomingApprovalWindowProc(
       HGDIOBJ old_avatar_font = SelectObject(
           dc,
           font_avatar_ != nullptr ? font_avatar_ : GetStockObject(DEFAULT_GUI_FONT));
-      SetTextColor(dc, RGB(252, 252, 252));
+      SetTextColor(dc, RGB(255, 255, 255));
       DrawTextW(
           dc,
           avatar_text,
@@ -13206,7 +13206,7 @@ LRESULT PortableHostApp::IncomingApprovalWindowProc(
       SelectObject(
           dc,
           font_dialog_name_ != nullptr ? font_dialog_name_ : GetStockObject(DEFAULT_GUI_FONT));
-      SetTextColor(dc, RGB(255, 255, 255));
+      SetTextColor(dc, kTextColor);
       DrawTextW(
           dc,
           display_name.c_str(),
@@ -13216,7 +13216,7 @@ LRESULT PortableHostApp::IncomingApprovalWindowProc(
 
       if (!secondary.empty()) {
         SelectObject(dc, font_small_ != nullptr ? font_small_ : GetStockObject(DEFAULT_GUI_FONT));
-        SetTextColor(dc, RGB(198, 201, 208));
+        SetTextColor(dc, kMutedTextColor);
         RECT secondary_rect = name_rect;
         secondary_rect.top = name_rect.bottom + ScaleForSystemDpi(3);
         secondary_rect.bottom = secondary_rect.top + ScaleForSystemDpi(24);
@@ -13234,7 +13234,7 @@ LRESULT PortableHostApp::IncomingApprovalWindowProc(
       SelectObject(
           dc,
           font_dialog_body_ != nullptr ? font_dialog_body_ : GetStockObject(DEFAULT_GUI_FONT));
-      SetTextColor(dc, RGB(244, 246, 249));
+      SetTextColor(dc, kTextColor);
       RECT body_rect = draw_rect;
       body_rect.bottom = client_rect.bottom - ScaleForSystemDpi(56);
       DrawTextW(
@@ -13379,7 +13379,7 @@ void PortableHostApp::CreateControls() {
         instance_,
         IDB_ICON_MORE_VERT,
         RT_RCDATA,
-        RGB(216, 218, 222),
+        kMutedTextColor,
         kWindowColor,
         ScaleForSystemDpi(18),
         ScaleForSystemDpi(18));
@@ -13387,7 +13387,7 @@ void PortableHostApp::CreateControls() {
         instance_,
         IDB_ICON_REFRESH,
         RT_RCDATA,
-        RGB(232, 234, 237),
+        kTextColor,
         kWindowColor,
         ScaleForSystemDpi(18),
         ScaleForSystemDpi(18));
