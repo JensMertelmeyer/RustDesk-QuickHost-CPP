@@ -48,6 +48,22 @@
 				"isDefault": true
 			},
 			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "QuickHost: Clean XP x86 build artifacts",
+			"type": "process",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"--preset",
+				"xp-x86-release",
+				"--target",
+				"clean"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": "$msCompile"
 		}
 	]
 }
