@@ -24,10 +24,6 @@ inline const wchar_t* PortableHostWindowClassName() noexcept {
   return L"RustDeskCppPortableHostWindow";
 }
 
-inline const wchar_t* PortableHostStartupTrayArgument() noexcept {
-  return L"--startup-tray";
-}
-
 class Win32Mutex {
  public:
   Win32Mutex() noexcept {
@@ -176,7 +172,7 @@ class PortableHostApp {
   PortableHostApp();
   ~PortableHostApp();
 
-  bool Initialize(HINSTANCE instance, bool start_hidden_on_launch = false);
+  bool Initialize(HINSTANCE instance);
   int Run();
 
  private:
@@ -208,11 +204,6 @@ class PortableHostApp {
   void CreateControls();
   void ApplyFonts();
   void LayoutControls(int client_width, int client_height);
-  bool AddTrayIcon();
-  void RemoveTrayIcon();
-  void ShowMainWindow();
-  void HideMainWindowToTray();
-  void ShowTrayMenu();
   unsigned long BeginIncomingApproval(
       const std::wstring& remote_id,
       const std::wstring& remote_name);
@@ -312,15 +303,11 @@ class PortableHostApp {
 
   HINSTANCE instance_ = nullptr;
   HWND window_ = nullptr;
-  HMENU tray_menu_ = nullptr;
   HICON window_icon_large_ = nullptr;
   HICON window_icon_small_ = nullptr;
-  HICON tray_icon_ = nullptr;
   HBITMAP logo_bitmap_ = nullptr;
   HBITMAP options_icon_bitmap_ = nullptr;
   HBITMAP refresh_icon_bitmap_ = nullptr;
-  bool tray_icon_added_ = false;
-  UINT taskbar_created_message_ = 0;
   ULONG_PTR gdiplus_token_ = 0;
   bool gdiplus_ready_ = false;
   HWND incoming_approval_window_ = nullptr;
@@ -368,7 +355,6 @@ class PortableHostApp {
   ServerState server_state_ = ServerState::kUnknown;
   bool winsock_ready_ = false;
   bool ole_ready_ = false;
-  bool start_hidden_on_launch_ = false;
   std::wstring rendezvous_status_text_;
   bool rendezvous_registered_ = false;
   std::wstring public_key_hex_;
