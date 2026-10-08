@@ -561,15 +561,12 @@ int CompatInetPtonW(int family, const wchar_t* address_text, void* address) {
 
 constexpr UINT kAppRendezvousStatus = WM_APP + 1;
 constexpr UINT kAppInstallRemoteFileClipboard = WM_APP + 2;
-constexpr UINT kAppTrayIcon = WM_APP + 3;
-constexpr UINT kAppIncomingApprovalUpdated = WM_APP + 4;
+constexpr UINT kAppIncomingApprovalUpdated = WM_APP + 3;
 constexpr UINT kIdValue = 1001;
 constexpr UINT kPasswordValue = 1002;
 constexpr UINT kRefreshPasswordButton = 1003;
 constexpr UINT kDisconnectButton = 1004;
 constexpr UINT kOptionsButton = 1005;
-constexpr UINT kTrayMenuShowWindow = 1101;
-constexpr UINT kTrayMenuExit = 1102;
 constexpr UINT kIncomingApprovalAcceptButton = 1201;
 constexpr UINT kIncomingApprovalDismissButton = 1202;
 constexpr UINT kOptionsMenuLaunchOnStartup = 1301;
@@ -578,7 +575,6 @@ constexpr UINT kOptionsMenuDisableRandomPassword = 1303;
 constexpr UINT kOptionsMenuChangeId = 1304;
 constexpr UINT kOptionsMenuLanguage = 1305;
 constexpr UINT kOptionsMenuAbout = 1306;
-constexpr UINT kTrayIconId = 1;
 
 constexpr COLORREF kWindowColor = RGB(245, 247, 250);
 constexpr COLORREF kPanelColor = RGB(255, 255, 255);
@@ -651,8 +647,6 @@ struct LanguageEntry {
 
 const LanguageEntry kTraditionalChineseLanguageEntries[] = {
     {L"app_window_title", PORTABLE_HOST_APP_NAME L" Host"},
-    {L"tray_show_main", L"顯示主頁"},
-    {L"tray_exit", L"離開"},
     {L"menu_launch_on_startup", L"開機啟動"},
     {L"menu_set_fixed_password", L"設定固定密碼"},
     {L"menu_disable_random_password", L"停用隨機密碼"},
@@ -697,8 +691,6 @@ const LanguageEntry kTraditionalChineseLanguageEntries[] = {
 
 const LanguageEntry kEnglishLanguageEntries[] = {
     {L"app_window_title", PORTABLE_HOST_APP_NAME L" Host"},
-    {L"tray_show_main", L"Show Main Window"},
-    {L"tray_exit", L"Exit"},
     {L"menu_launch_on_startup", L"Launch on Startup"},
     {L"menu_set_fixed_password", L"Set Fixed Password"},
     {L"menu_disable_random_password", L"Disable Random Password"},
@@ -11965,18 +11957,12 @@ std::wstring RegisterPkResultText(int result) {
 }
 
 std::wstring BuildLaunchOnStartupCommand(
-    const std::wstring& executable_path,
-    bool start_hidden_to_tray) {
+    const std::wstring& executable_path) {
   if (executable_path.empty()) {
     return std::wstring();
   }
 
-  std::wstring command = L"\"" + executable_path + L"\"";
-  if (start_hidden_to_tray) {
-    command += L" ";
-    command += PortableHostStartupTrayArgument();
-  }
-  return command;
+  return L"\"" + executable_path + L"\"";
 }
 
 }  // namespace
@@ -11990,11 +11976,6 @@ PortableHostApp::~PortableHostApp() {
   AppendPortableHostLog(L"app", L"========== PortableHostApp shutdown ==========");
   StopRendezvousWorker();
   DestroyIncomingApprovalWindow();
-  RemoveTrayIcon();
-  if (tray_menu_ != nullptr) {
-    DestroyMenu(tray_menu_);
-    tray_menu_ = nullptr;
-  }
   DestroyIcons();
   DestroyFonts();
   if (logo_bitmap_ != nullptr) {
@@ -12034,11 +12015,9 @@ PortableHostApp::~PortableHostApp() {
   }
 }
 
-bool PortableHostApp::Initialize(HINSTANCE instance, bool start_hidden_on_launch) {
+bool PortableHostApp::Initialize(HINSTANCE instance) {
   instance_ = instance;
-  start_hidden_on_launch_ = start_hidden_on_launch;
   EnableBestEffortDpiAwareness();
-  taskbar_created_message_ = RegisterWindowMessageW(L"TaskbarCreated");
 
   GdiplusStartupInput gdiplus_startup;
   gdiplus_ready_ = GdiplusStartup(&gdiplus_token_, &gdiplus_startup, nullptr) == Ok;
@@ -12084,12 +12063,8 @@ bool PortableHostApp::Initialize(HINSTANCE instance, bool start_hidden_on_launch
 }
 
 int PortableHostApp::Run() {
-  if (start_hidden_on_launch_) {
-    HideMainWindowToTray();
-  } else {
-    ShowWindow(window_, SW_SHOWDEFAULT);
-    UpdateWindow(window_);
-  }
+  ShowWindow(window_, SW_SHOWDEFAULT);
+  UpdateWindow(window_);
 
   MSG message = {};
   while (GetMessageW(&message, nullptr, 0, 0) > 0) {
@@ -12121,12 +12096,6 @@ LRESULT CALLBACK PortableHostApp::WindowProcStatic(
 }
 
 LRESULT PortableHostApp::WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param) {
-  if (taskbar_created_message_ != 0 && message == taskbar_created_message_) {
-    tray_icon_added_ = false;
-    AddTrayIcon();
-    return 0;
-  }
-
   switch (message) {
     case WM_SIZE: {
       LayoutControls(LOWORD(l_param), HIWORD(l_param));
@@ -12135,14 +12104,6 @@ LRESULT PortableHostApp::WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPA
     }
     case WM_COMMAND: {
       const UINT control_id = LOWORD(w_param);
-      if (control_id == kTrayMenuShowWindow) {
-        ShowMainWindow();
-        return 0;
-      }
-      if (control_id == kTrayMenuExit) {
-        DestroyWindow(hwnd);
-        return 0;
-      }
       if (control_id == kOptionsButton) {
         ShowOptionsMenu();
         return 0;
@@ -12227,20 +12188,6 @@ LRESULT PortableHostApp::WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPA
             IsRendezvousRegistered());
       }
       return 0;
-    }
-    case kAppTrayIcon: {
-      switch (static_cast<UINT>(l_param)) {
-        case WM_LBUTTONDBLCLK:
-          ShowMainWindow();
-          return 0;
-        case WM_RBUTTONUP:
-        case WM_CONTEXTMENU:
-          ShowTrayMenu();
-          return 0;
-        default:
-          break;
-      }
-      break;
     }
     case WM_ERASEBKGND:
       return 1;
@@ -12327,17 +12274,9 @@ LRESULT PortableHostApp::WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPA
         return TRUE;
       }
       break;
-    case WM_CLOSE:
-      HideMainWindowToTray();
-      return 0;
     case WM_DESTROY:
       KillTimer(hwnd, kUiRefreshTimerId);
       DestroyIncomingApprovalWindow();
-      RemoveTrayIcon();
-      if (tray_menu_ != nullptr) {
-        DestroyMenu(tray_menu_);
-        tray_menu_ = nullptr;
-      }
       PostQuitMessage(0);
       return 0;
     default:
@@ -12370,26 +12309,6 @@ bool PortableHostApp::CreateMainWindow() {
       0));
   if (window_icon_small_ == nullptr) {
     window_icon_small_ = CopyIcon(LoadIconW(nullptr, IDI_APPLICATION));
-  }
-
-  tray_icon_ = static_cast<HICON>(LoadImageW(
-      instance_,
-      MAKEINTRESOURCEW(IDI_TRAY_ICON),
-      IMAGE_ICON,
-      GetSystemMetrics(SM_CXSMICON),
-      GetSystemMetrics(SM_CYSMICON),
-      0));
-  if (tray_icon_ == nullptr) {
-    tray_icon_ = static_cast<HICON>(LoadImageW(
-        instance_,
-        MAKEINTRESOURCEW(IDI_APP_ICON),
-        IMAGE_ICON,
-        GetSystemMetrics(SM_CXSMICON),
-        GetSystemMetrics(SM_CYSMICON),
-        0));
-  }
-  if (tray_icon_ == nullptr) {
-    tray_icon_ = CopyIcon(LoadIconW(nullptr, IDI_APPLICATION));
   }
 
   WNDCLASSEXW window_class = {};
@@ -12432,22 +12351,6 @@ bool PortableHostApp::CreateMainWindow() {
   SendMessageW(window_, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(window_icon_large_));
   SendMessageW(window_, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(window_icon_small_));
 
-  tray_menu_ = CreatePopupMenu();
-  if (tray_menu_ != nullptr) {
-    AppendMenuW(
-        tray_menu_,
-        MF_STRING,
-        kTrayMenuShowWindow,
-        GetText(L"tray_show_main", L"\u986f\u793a\u4e3b\u9801").c_str());
-    AppendMenuW(tray_menu_, MF_SEPARATOR, 0, nullptr);
-    AppendMenuW(
-        tray_menu_,
-        MF_STRING,
-        kTrayMenuExit,
-        GetText(L"tray_exit", L"\u96e2\u958b").c_str());
-  }
-  AddTrayIcon();
-
   CreateControls();
   ApplyFonts();
   SetTimer(window_, kUiRefreshTimerId, 1000, nullptr);
@@ -12459,10 +12362,6 @@ bool PortableHostApp::CreateMainWindow() {
 }
 
 void PortableHostApp::DestroyIcons() {
-  if (tray_icon_ != nullptr) {
-    DestroyIcon(tray_icon_);
-    tray_icon_ = nullptr;
-  }
   if (window_icon_small_ != nullptr) {
     DestroyIcon(window_icon_small_);
     window_icon_small_ = nullptr;
@@ -12471,90 +12370,6 @@ void PortableHostApp::DestroyIcons() {
     DestroyIcon(window_icon_large_);
     window_icon_large_ = nullptr;
   }
-}
-
-bool PortableHostApp::AddTrayIcon() {
-  if (window_ == nullptr) {
-    return false;
-  }
-
-  NOTIFYICONDATAW notify_data = {};
-  notify_data.cbSize = sizeof(notify_data);
-  notify_data.hWnd = window_;
-  notify_data.uID = kTrayIconId;
-  notify_data.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
-  notify_data.uCallbackMessage = kAppTrayIcon;
-  notify_data.hIcon = tray_icon_ != nullptr ? tray_icon_ : window_icon_small_;
-  const std::wstring app_title = GetText(L"app_window_title", kAppWindowTitle);
-  lstrcpynW(notify_data.szTip, app_title.c_str(), ARRAYSIZE(notify_data.szTip));
-
-  if (tray_icon_added_) {
-    if (Shell_NotifyIconW(NIM_MODIFY, &notify_data)) {
-      return true;
-    }
-    tray_icon_added_ = false;
-  }
-
-  if (!Shell_NotifyIconW(NIM_ADD, &notify_data)) {
-    return false;
-  }
-
-  tray_icon_added_ = true;
-  notify_data.uVersion = NOTIFYICON_VERSION;
-  Shell_NotifyIconW(NIM_SETVERSION, &notify_data);
-  return true;
-}
-
-void PortableHostApp::RemoveTrayIcon() {
-  if (!tray_icon_added_ || window_ == nullptr) {
-    return;
-  }
-
-  NOTIFYICONDATAW notify_data = {};
-  notify_data.cbSize = sizeof(notify_data);
-  notify_data.hWnd = window_;
-  notify_data.uID = kTrayIconId;
-  Shell_NotifyIconW(NIM_DELETE, &notify_data);
-  tray_icon_added_ = false;
-}
-
-void PortableHostApp::ShowMainWindow() {
-  if (window_ == nullptr) {
-    return;
-  }
-
-  ShowWindow(window_, IsIconic(window_) ? SW_RESTORE : SW_SHOW);
-  SetForegroundWindow(window_);
-}
-
-void PortableHostApp::HideMainWindowToTray() {
-  if (window_ == nullptr) {
-    return;
-  }
-
-  if (!tray_icon_added_) {
-    AddTrayIcon();
-  }
-  ShowWindow(window_, SW_HIDE);
-}
-
-void PortableHostApp::ShowTrayMenu() {
-  if (window_ == nullptr || tray_menu_ == nullptr) {
-    return;
-  }
-
-  POINT cursor_position = {};
-  GetCursorPos(&cursor_position);
-  SetForegroundWindow(window_);
-  TrackPopupMenu(
-      tray_menu_,
-      TPM_RIGHTBUTTON | TPM_BOTTOMALIGN | TPM_LEFTALIGN,
-      cursor_position.x,
-      cursor_position.y,
-      0,
-      window_,
-      nullptr);
-  PostMessageW(window_, WM_NULL, 0, 0);
 }
 
 unsigned long PortableHostApp::BeginIncomingApproval(
@@ -14481,25 +14296,6 @@ void PortableHostApp::RefreshUiText() {
   SetWindowTextW(server_value_label_, server_status.c_str());
   SetWindowTextW(config_path_label_, L"");
 
-  if (tray_menu_ != nullptr) {
-    const std::wstring tray_show = GetText(L"tray_show_main", L"\u986f\u793a\u4e3b\u9801");
-    const std::wstring tray_exit = GetText(L"tray_exit", L"\u96e2\u958b");
-    ModifyMenuW(
-        tray_menu_,
-        kTrayMenuShowWindow,
-        MF_BYCOMMAND | MF_STRING,
-        kTrayMenuShowWindow,
-        tray_show.c_str());
-    ModifyMenuW(
-        tray_menu_,
-        kTrayMenuExit,
-        MF_BYCOMMAND | MF_STRING,
-        kTrayMenuExit,
-        tray_exit.c_str());
-  }
-  if (tray_icon_added_) {
-    AddTrayIcon();
-  }
   if (incoming_approval_window_ != nullptr) {
     SetWindowTextW(
         incoming_approval_window_,
@@ -15303,17 +15099,15 @@ bool PortableHostApp::IsLaunchOnStartupEnabled() const {
 
   const std::wstring executable_path = GetExecutablePath();
   const std::wstring stored = buffer;
-  const std::wstring hidden_command =
-      BuildLaunchOnStartupCommand(executable_path, true);
-  if (!hidden_command.empty() &&
-      _wcsicmp(stored.c_str(), hidden_command.c_str()) == 0) {
+  const std::wstring startup_command = BuildLaunchOnStartupCommand(executable_path);
+  if (!startup_command.empty() &&
+      _wcsicmp(stored.c_str(), startup_command.c_str()) == 0) {
     return true;
   }
 
-  const std::wstring legacy_command =
-      BuildLaunchOnStartupCommand(executable_path, false);
-  return !legacy_command.empty() &&
-         _wcsicmp(stored.c_str(), legacy_command.c_str()) == 0;
+  const std::wstring legacy_hidden_command = startup_command + L" --startup-tray";
+  return !startup_command.empty() &&
+         _wcsicmp(stored.c_str(), legacy_hidden_command.c_str()) == 0;
 }
 
 bool PortableHostApp::SetLaunchOnStartupEnabled(bool enabled) {
@@ -15334,8 +15128,7 @@ bool PortableHostApp::SetLaunchOnStartupEnabled(bool enabled) {
 
   bool ok = true;
   if (enabled) {
-    const std::wstring command =
-        BuildLaunchOnStartupCommand(GetExecutablePath(), true);
+    const std::wstring command = BuildLaunchOnStartupCommand(GetExecutablePath());
     const DWORD bytes =
         static_cast<DWORD>((command.size() + 1) * sizeof(wchar_t));
     ok = RegSetValueExW(
