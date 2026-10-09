@@ -42,7 +42,7 @@ quickhost_dependency(vpx vpx/vp8cx.h vpx libvpx)
 quickhost_dependency(yuv libyuv/convert.h yuv libyuv)
 quickhost_dependency(zstd zstd.h zstd_static libzstd_static zstd libzstd)
 
-foreach(asset rustdesk_app.ico rustdesk_tray.ico qslogo.png material_more_vert.png material_refresh.png)
+foreach(asset rustdesk_app.ico rustdesk_tray.ico qslogo.png material_refresh.png)
     if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/resources/${asset}")
         message(FATAL_ERROR "Missing resource: resources/${asset}")
     endif()

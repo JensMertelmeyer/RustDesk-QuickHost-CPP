@@ -234,7 +234,6 @@ class PortableHostApp {
   void RefreshPassword();
   void RefreshServerState();
   void RefreshUiText();
-  void ShowOptionsMenu();
   void ToggleLaunchOnStartup();
   void ToggleRandomPassword();
   void ConfigureFixedPassword();
@@ -306,7 +305,6 @@ class PortableHostApp {
   HICON window_icon_large_ = nullptr;
   HICON window_icon_small_ = nullptr;
   HBITMAP logo_bitmap_ = nullptr;
-  HBITMAP options_icon_bitmap_ = nullptr;
   HBITMAP refresh_icon_bitmap_ = nullptr;
   ULONG_PTR gdiplus_token_ = 0;
   bool gdiplus_ready_ = false;
@@ -336,7 +334,6 @@ class PortableHostApp {
   HWND id_accent_ = nullptr;
   HWND id_label_ = nullptr;
   HWND id_value_ = nullptr;
-  HWND options_button_ = nullptr;
   HWND password_accent_ = nullptr;
   HWND password_label_ = nullptr;
   HWND password_value_ = nullptr;

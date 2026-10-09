@@ -566,15 +566,8 @@ constexpr UINT kIdValue = 1001;
 constexpr UINT kPasswordValue = 1002;
 constexpr UINT kRefreshPasswordButton = 1003;
 constexpr UINT kDisconnectButton = 1004;
-constexpr UINT kOptionsButton = 1005;
 constexpr UINT kIncomingApprovalAcceptButton = 1201;
 constexpr UINT kIncomingApprovalDismissButton = 1202;
-constexpr UINT kOptionsMenuLaunchOnStartup = 1301;
-constexpr UINT kOptionsMenuSetFixedPassword = 1302;
-constexpr UINT kOptionsMenuDisableRandomPassword = 1303;
-constexpr UINT kOptionsMenuChangeId = 1304;
-constexpr UINT kOptionsMenuLanguage = 1305;
-constexpr UINT kOptionsMenuAbout = 1306;
 
 constexpr COLORREF kWindowColor = RGB(245, 247, 250);
 constexpr COLORREF kPanelColor = RGB(255, 255, 255);
@@ -11982,10 +11975,6 @@ PortableHostApp::~PortableHostApp() {
     DeleteObject(logo_bitmap_);
     logo_bitmap_ = nullptr;
   }
-  if (options_icon_bitmap_ != nullptr) {
-    DeleteObject(options_icon_bitmap_);
-    options_icon_bitmap_ = nullptr;
-  }
   if (refresh_icon_bitmap_ != nullptr) {
     DeleteObject(refresh_icon_bitmap_);
     refresh_icon_bitmap_ = nullptr;
@@ -12104,10 +12093,6 @@ LRESULT PortableHostApp::WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPA
     }
     case WM_COMMAND: {
       const UINT control_id = LOWORD(w_param);
-      if (control_id == kOptionsButton) {
-        ShowOptionsMenu();
-        return 0;
-      }
       if (control_id == kRefreshPasswordButton) {
         RefreshPassword();
         RefreshUiText();
@@ -12116,30 +12101,6 @@ LRESULT PortableHostApp::WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPA
       if (control_id == kDisconnectButton) {
         StopActiveSession(true);
         RefreshUiText();
-        return 0;
-      }
-      if (control_id == kOptionsMenuLaunchOnStartup) {
-        ToggleLaunchOnStartup();
-        return 0;
-      }
-      if (control_id == kOptionsMenuSetFixedPassword) {
-        ConfigureFixedPassword();
-        return 0;
-      }
-      if (control_id == kOptionsMenuDisableRandomPassword) {
-        ToggleRandomPassword();
-        return 0;
-      }
-      if (control_id == kOptionsMenuChangeId) {
-        ConfigureHostId();
-        return 0;
-      }
-      if (control_id == kOptionsMenuLanguage) {
-        ConfigureLanguage();
-        return 0;
-      }
-      if (control_id == kOptionsMenuAbout) {
-        ShowAboutDialog();
         return 0;
       }
       break;
@@ -12254,7 +12215,7 @@ LRESULT PortableHostApp::WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPA
       HDC dc = reinterpret_cast<HDC>(w_param);
       HWND control = reinterpret_cast<HWND>(l_param);
       SetTextColor(dc, kTextColor);
-      if (control == options_button_ || control == refresh_password_button_) {
+      if (control == refresh_password_button_) {
         SetBkColor(dc, kWindowColor);
         return reinterpret_cast<INT_PTR>(dark_brush_);
       }
@@ -12825,8 +12786,7 @@ bool PortableHostApp::DrawOwnerButton(const DRAWITEMSTRUCT* draw_item) const {
 
   const UINT control_id = draw_item->CtlID;
   const bool primary = control_id == kIncomingApprovalAcceptButton;
-  const bool icon_button =
-      control_id == kOptionsButton || control_id == kRefreshPasswordButton;
+  const bool icon_button = control_id == kRefreshPasswordButton;
   const bool secondary = control_id == kIncomingApprovalDismissButton;
   const bool disconnect_button = control_id == kDisconnectButton;
   const bool disabled = (draw_item->itemState & ODS_DISABLED) != 0;
@@ -12874,8 +12834,7 @@ bool PortableHostApp::DrawOwnerButton(const DRAWITEMSTRUCT* draw_item) const {
       border_color);
 
   if (icon_button) {
-    const HBITMAP bitmap =
-        control_id == kOptionsButton ? options_icon_bitmap_ : refresh_icon_bitmap_;
+    const HBITMAP bitmap = refresh_icon_bitmap_;
     if (bitmap != nullptr) {
       DrawBitmapCentered(draw_item->hDC, draw_item->rcItem, bitmap);
     }
@@ -13175,10 +13134,6 @@ void PortableHostApp::CreateControls() {
     DeleteObject(logo_bitmap_);
     logo_bitmap_ = nullptr;
   }
-  if (options_icon_bitmap_ != nullptr) {
-    DeleteObject(options_icon_bitmap_);
-    options_icon_bitmap_ = nullptr;
-  }
   if (refresh_icon_bitmap_ != nullptr) {
     DeleteObject(refresh_icon_bitmap_);
     refresh_icon_bitmap_ = nullptr;
@@ -13190,14 +13145,6 @@ void PortableHostApp::CreateControls() {
         RT_RCDATA,
         ScaleForSystemDpi(kLogoTargetWidth),
         ScaleForSystemDpi(kLogoTargetHeight));
-    options_icon_bitmap_ = LoadTintedBitmapFromResource(
-        instance_,
-        IDB_ICON_MORE_VERT,
-        RT_RCDATA,
-        kMutedTextColor,
-        kWindowColor,
-        ScaleForSystemDpi(18),
-        ScaleForSystemDpi(18));
     refresh_icon_bitmap_ = LoadTintedBitmapFromResource(
         instance_,
         IDB_ICON_REFRESH,
@@ -13275,26 +13222,6 @@ void PortableHostApp::CreateControls() {
       0, L"EDIT", L"",
       edit_style,
       0, 0, 0, 0, window_, reinterpret_cast<HMENU>(kIdValue), instance_, nullptr);
-
-  options_button_ = CreateWindowExW(
-      0,
-      L"BUTTON",
-      L"",
-      icon_button_style,
-      0,
-      0,
-      0,
-      0,
-      window_,
-      reinterpret_cast<HMENU>(kOptionsButton),
-      instance_,
-      nullptr);
-  if (options_button_ != nullptr) {
-    SetWindowLongPtrW(
-        options_button_,
-        GWL_STYLE,
-        GetWindowLongPtrW(options_button_, GWL_STYLE) & ~WS_TABSTOP);
-  }
 
   password_accent_ = CreateWindowExW(
       0,
@@ -13387,7 +13314,6 @@ void PortableHostApp::ApplyFonts() {
       id_accent_,
       id_label_,
       id_value_,
-      options_button_,
       password_accent_,
       password_label_,
       password_value_,
@@ -13458,15 +13384,8 @@ void PortableHostApp::LayoutControls(int client_width, int client_height) {
 
   const int id_value_left = left + label_inset;
   const int id_value_top = top + ScaleForSystemDpi(21);
-  const int id_value_width = width - label_inset - icon_button_width - icon_gap;
+  const int id_value_width = width - label_inset;
   MoveWindow(id_value_, id_value_left, id_value_top, id_value_width, edit_height, TRUE);
-  MoveWindow(
-      options_button_,
-      id_value_left + id_value_width + icon_gap,
-      id_value_top + ((edit_height - icon_button_height) / 2),
-      icon_button_width,
-      icon_button_height,
-      TRUE);
   top += block_height + ScaleForSystemDpi(6);
 
   MoveWindow(password_accent_, left, top, ScaleForSystemDpi(3), block_height, TRUE);
@@ -14313,62 +14232,6 @@ void PortableHostApp::RefreshUiText() {
     InvalidateRect(incoming_approval_window_, nullptr, TRUE);
   }
   InvalidateConnectionStatusCard();
-}
-
-void PortableHostApp::ShowOptionsMenu() {
-  if (window_ == nullptr || options_button_ == nullptr) {
-    return;
-  }
-
-  HMENU options_menu = CreatePopupMenu();
-  if (options_menu == nullptr) {
-    return;
-  }
-
-  AppendMenuW(
-      options_menu,
-      MF_STRING | (IsLaunchOnStartupEnabled() ? MF_CHECKED : 0),
-      kOptionsMenuLaunchOnStartup,
-      GetText(L"menu_launch_on_startup", L"\u958b\u6a5f\u555f\u52d5").c_str());
-  AppendMenuW(
-      options_menu,
-      MF_STRING,
-      kOptionsMenuSetFixedPassword,
-      GetText(L"menu_set_fixed_password", L"\u8a2d\u5b9a\u56fa\u5b9a\u5bc6\u78bc").c_str());
-  AppendMenuW(
-      options_menu,
-      MF_STRING | (!config_.random_password_enabled ? MF_CHECKED : 0),
-      kOptionsMenuDisableRandomPassword,
-      GetText(L"menu_disable_random_password", L"\u505c\u7528\u96a8\u6a5f\u5bc6\u78bc").c_str());
-  AppendMenuW(
-      options_menu,
-      MF_STRING,
-      kOptionsMenuChangeId,
-      GetText(L"menu_change_id", L"\u66f4\u6539 ID").c_str());
-  AppendMenuW(
-      options_menu,
-      MF_STRING,
-      kOptionsMenuLanguage,
-      GetText(L"menu_language", L"\u8a9e\u8a00").c_str());
-  AppendMenuW(
-      options_menu,
-      MF_STRING,
-      kOptionsMenuAbout,
-      GetText(L"menu_about", L"\u95dc\u65bc").c_str());
-
-  RECT button_rect = {};
-  GetWindowRect(options_button_, &button_rect);
-  SetForegroundWindow(window_);
-  TrackPopupMenu(
-      options_menu,
-      TPM_RIGHTBUTTON | TPM_LEFTALIGN | TPM_TOPALIGN,
-      button_rect.left,
-      button_rect.bottom,
-      0,
-      window_,
-      nullptr);
-  DestroyMenu(options_menu);
-  PostMessageW(window_, WM_NULL, 0, 0);
 }
 
 void PortableHostApp::ToggleLaunchOnStartup() {
