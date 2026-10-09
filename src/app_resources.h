@@ -3,7 +3,6 @@
 
 #define IDI_APP_ICON 101
 #define IDB_QS_LOGO 103
-#define IDB_ICON_MORE_VERT 104
 #define IDB_ICON_REFRESH 105
 
 #endif  // APP_RESOURCES_H_
