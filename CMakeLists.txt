@@ -65,4 +65,5 @@ target_link_libraries(RustDeskQS PRIVATE
     advapi32 comctl32 comdlg32 crypt32 gdi32 gdiplus iphlpapi
     mfuuid ole32 oleaut32 shell32 user32 ws2_32)
 set_target_properties(RustDeskQS PROPERTIES
+    OUTPUT_NAME "Kdesign_Remote_Support"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

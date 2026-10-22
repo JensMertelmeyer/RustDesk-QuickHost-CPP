@@ -76,7 +76,7 @@ if ($LASTEXITCODE -ne 0) { throw 'QuickHost configuration failed' }
 cmake --build --preset xp-x86-release
 ```
 
-Output: **`build/xp-x86-release/bin/Release/RustDeskQS.exe`**.
+Output: **`build/xp-x86-release/bin/Release/Kdesign_Remote_Support.exe`**.
 
 In VS Code, use **Ctrl+Shift+B**. It configures and builds automatically.
 To check setup, use **Terminal > Run Task > QuickHost: Check prerequisites**.
