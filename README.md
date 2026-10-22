@@ -185,6 +185,10 @@ It is rewritten from the ground up in native C++ and is designed for computers t
 
 Local/private build scripts are intentionally not included because they are specific to the author's local build environment.
 
+An initial CMake configuration and VS Code build tasks are now available in this
+checkout. See [Building on Windows](docs/build-windows.md) for the XP-compatible
+toolchain, dependencies, and current verification limitations.
+
 ## Screenshots
 
 ### v1.1.0.0 Incoming Connection Status
