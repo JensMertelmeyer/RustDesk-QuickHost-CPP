@@ -1,23 +1,29 @@
-# RustDesk QuickHost
+# Kdesign Support
 
 Native C++ host-only RustDesk-compatible remote support client for Windows XP / 7 / 10 / 11.
 
-![Downloads](https://img.shields.io/github/downloads/Terence0816/RustDesk-QuickHost/total?label=Downloads)
-[Releases](https://github.com/Terence0816/RustDesk-QuickHost/releases) |
-[Latest Official Build v1.1.2.5](https://github.com/Terence0816/RustDesk-QuickHost/releases/tag/v1.1.2.5) |
+[Upstream project: RustDesk QuickHost](https://github.com/Terence0816/RustDesk-QuickHost) |
 [GPL-3.0 License](LICENSE)
 
 English | [繁體中文](#繁體中文)
 
 ![RustDesk QuickHost English Banner](assets/screenshots/rustdesk-quickhost-en.png)
 
-RustDesk QuickHost is a lightweight **RustDesk-compatible host-only remote support client** for Windows.
+Kdesign Support is a Kdesign-maintained fork of [RustDesk QuickHost](https://github.com/Terence0816/RustDesk-QuickHost), a lightweight **RustDesk-compatible host-only remote support client** for Windows. It has been rebranded from RustDesk QuickHost; this is an independent fork, not an official RustDesk product.
 
-It is rewritten from the ground up in native C++ and is designed for computers that only need to be remotely controlled.
+The fork's Kdesign-specific changes were made from 7 October 2026 through 22 October 2026. They include:
 
-> This project is compatible with RustDesk-style remote support usage, but it is **not an official RustDesk client**.
+* Rebranded application name, logo, icon, light UI theme, and executable name (`Kdesign_Remote_Support.exe`).
+* Default ID and relay servers changed to `remote.kdesign-web.de` on ports `21116` and `21117`; the API server is empty by default.
+* Removed system-tray residency and its tray menu. Closing the main window now exits the application instead of hiding it in the tray.
+* Removed the three-dot options menu and its in-app actions for startup, fixed-password/random-password settings, ID changes, language selection, and About. Some related configuration code or INI fields may remain, but these actions are no longer available from that menu.
+* Added CMake build configuration, VS Code build tasks, a prerequisite-check script, and Windows build documentation. See [Building this fork](docs/build-windows.md).
 
-## Version History
+The application remains an independent RustDesk-compatible implementation and is **not an official RustDesk client**. RustDesk is a trademark of its respective owner.
+
+## Upstream Version History
+
+The following entries describe upstream RustDesk QuickHost releases, not Kdesign fork releases.
 
 ### v1.1.2.5
 
@@ -130,11 +136,11 @@ It is rewritten from the ground up in native C++ and is designed for computers t
 
 ## How to Use
 
-1. Download `RustDeskQS.exe` on the Windows computer that needs to be remotely controlled.
+1. Download `Kdesign_Remote_Support.exe` from a release published for this fork, when available.
 2. Put the executable in a fixed folder and run it.
 3. On first launch, the program automatically generates `rustdesk_cpp_host.ini`, `en.txt`, and `tw.txt`.
 4. Provide the displayed ID and one-time password to the helper.
-5. You may also configure a custom ID, fixed password, startup option, direct IP connection port, and self-hosted RustDesk server settings.
+5. Configure supported host and server settings in `rustdesk_cpp_host.ini`. The upstream three-dot settings menu is not present in this fork.
 6. The controller side can use the official RustDesk client to connect.
 
 ## Suitable Use Cases
@@ -154,25 +160,20 @@ It is rewritten from the ground up in native C++ and is designed for computers t
 * Lightweight single executable
 * Supports Windows XP / Windows 7 / Windows 10 / Windows 11 and WinPE.
 * Tested and confirmed to run and connect successfully in Windows XP / 7 / 10 / 11 PE environments.
-* System tray resident mode
-* Auto start with Windows
-* Fixed password support
-* Option to disable random one-time password
-* Custom RustDesk ID
 * Direct IP connection mode
 * Configurable direct IP connection port
 * Incoming connection status display
 * Displays connected peer ID or IP address
 * Disconnect current session from the host UI
 * INI-based configuration
-* Custom ID server, relay server, API server and server key
+* INI-based server configuration; defaults to the Kdesign ID and relay servers
 * Self-hosted RustDesk server support
 * Force relay option
 * Automatic video codec detection
 * Currently supports H.264 and VP8
 * FPS and bitrate configuration
-* Built-in Traditional Chinese and English language files
-* Custom `.txt` language file support
+* Built-in Traditional Chinese and English language strings
+* Language file configuration through the INI file
 * First run automatically generates `rustdesk_cpp_host.ini`, `en.txt`, and `tw.txt`
 
 ## Repository Layout
@@ -183,13 +184,15 @@ It is rewritten from the ground up in native C++ and is designed for computers t
 * `docs/`: technical notes
 * `rustdesk_cpp_host.ini.example`: sample runtime configuration
 
-Local/private build scripts are intentionally not included because they are specific to the author's local build environment.
+### Building This Fork
 
-An initial CMake configuration and VS Code build tasks are now available in this
-checkout. See [Building on Windows](docs/build-windows.md) for the XP-compatible
-toolchain, dependencies, and current verification limitations.
+This fork adds CMake configuration and presets, VS Code build tasks, a PowerShell prerequisite-check script, and [Windows build instructions](docs/build-windows.md) for the XP-compatible toolchain. The build was verified on the maintainer's machine; a fresh-machine installation has not been retested, and runtime compatibility still needs testing on Windows XP.
+
+The upstream project offers downloadable binaries but does not provide these build scripts and instructions. This fork's build setup applies to this fork. Separately, GPL-3.0 requirements apply when distributing binaries: provide the corresponding source under the license, including scripts needed to control compilation and installation. Build instructions are useful, but are not a substitute for providing the required source.
 
 ## Screenshots
+
+The screenshots below are from upstream RustDesk QuickHost and may not match the rebranded fork UI.
 
 ### v1.1.0.0 Incoming Connection Status
 
@@ -221,7 +224,7 @@ en.txt
 tw.txt
 ```
 
-The default `rustdesk_cpp_host.ini` connects to the official RustDesk public server.
+The default `rustdesk_cpp_host.ini` connects to the Kdesign ID server at `remote.kdesign-web.de:21116` and relay server at `remote.kdesign-web.de:21117`. The API server is empty by default. The server key is supplied by the application defaults.
 
 You can edit `id_server`, `relay_server`, `api_server`, and `key` to use your own self-hosted RustDesk server.
 
@@ -298,19 +301,18 @@ Then select `jp.txt` from the program language menu, or set it manually in `rust
 language_file=jp.txt
 ```
 
-## Download
+## Upstream Downloads
 
-* Release page: [Releases](https://github.com/Terence0816/RustDesk-QuickHost/releases)
-* Official `v1.1.2.3` build: [RustDeskQS.exe](https://github.com/Terence0816/RustDesk-QuickHost/releases/tag/V1.1.2.3)
-* GitHub release assets show the current download count for the official build.
+* Upstream RustDesk QuickHost releases: [Releases](https://github.com/Terence0816/RustDesk-QuickHost/releases)
+* Upstream release binaries are not Kdesign Support builds. Fork binaries should be obtained from a release published by the Kdesign fork maintainer.
 
 ## Security Notice
 
-RustDesk QuickHost is a remote support host-only tool.
+Kdesign Support is a remote support host-only tool.
 
-Because it includes remote control, network connection, password, system tray resident mode, auto-start, and direct IP connection features, some antivirus engines may classify it as a risk tool or produce a false positive.
+Because it includes remote control, network connection, password, and direct IP connection features, some antivirus engines may classify it as a risk tool or produce a false positive.
 
-Please download only from the official GitHub Releases page and verify the digital signature and SHA256 checksum before use.
+Download binaries only from a release source you trust, and verify the publisher's digital signature and SHA256 checksum when provided.
 
 ## Search Keywords
 
@@ -318,7 +320,7 @@ RustDesk compatible host, RustDesk host-only client, RustDesk QuickHost, remote 
 
 ## Disclaimer
 
-This project is an independent implementation.
+This project is an independent fork of RustDesk QuickHost.
 
 It is not affiliated with, endorsed by, or officially maintained by RustDesk.
 RustDesk is a trademark of its respective owner.
@@ -329,7 +331,7 @@ This tool is intended only for authorized remote support. Do not use it for unau
 
 ## License
 
-This repository is released under the GNU General Public License v3.0. See [LICENSE](LICENSE).
+This fork and its modifications are released under the GNU General Public License v3.0. See [LICENSE](LICENSE).
 
 ---
 
@@ -337,13 +339,23 @@ This repository is released under the GNU General Public License v3.0. See [LICE
 
 ![RustDesk QuickHost 繁體中文介紹圖](assets/screenshots/rustdesk-quickhost-zh-TW.png)
 
-RustDesk QuickHost 是一個輕量化的 **RustDesk 相容 Host-only 被控端遠端協助工具**。
+Kdesign Support 是 [RustDesk QuickHost](https://github.com/Terence0816/RustDesk-QuickHost) 的 Kdesign 分支，為輕量化的 **RustDesk 相容 Host-only 被控端遠端協助工具**。本分支已重新品牌化，屬於獨立分支，並非 RustDesk 官方產品。
 
-本專案使用原生 C++ 從底層重新實作，主要設計給只需要被遠端連線控制的 Windows 電腦使用。
+本分支沿用原生 C++ 實作，主要適用於只需要被遠端連線控制的 Windows 電腦。
 
-> 本專案相容 RustDesk 風格的遠端協助用途，但不是 RustDesk 官方用戶端。
+本分支的 Kdesign 修改於 2026 年 10 月 7 日至 10 月 22 日進行，主要包括：
 
-## 版本更新紀錄
+* 更改程式名稱、標誌、圖示、淺色介面主題與執行檔名稱（`Kdesign_Remote_Support.exe`）。
+* 預設 ID 與 Relay 伺服器改為 `remote.kdesign-web.de`，連接埠分別為 `21116` 與 `21117`；API Server 預設為空白。
+* 移除系統匣常駐及系統匣選單；關閉主視窗會結束程式，不再隱藏至系統匣。
+* 移除三點選項選單，以及其中的開機啟動、固定密碼／隨機密碼設定、更改 ID、語言選擇與「關於」操作。部分相關設定程式碼或 INI 欄位可能仍保留，但已無法透過該選單操作。
+* 新增 CMake 建置設定、VS Code 建置工作、PowerShell 環境檢查腳本及 Windows 建置文件，請參閱[本分支的 Windows 建置說明](docs/build-windows.md)。
+
+本程式仍是獨立的 RustDesk 相容實作，並非 RustDesk 官方用戶端。RustDesk 為其各自擁有者之商標。
+
+## 上游版本更新紀錄
+
+以下內容是上游 RustDesk QuickHost 的版本紀錄，不代表 Kdesign 分支的版本紀錄。
 
 ### v1.1.2.5
 
@@ -455,11 +467,11 @@ RustDesk QuickHost 是一個輕量化的 **RustDesk 相容 Host-only 被控端�
 
 ## 使用方式
 
-1. 在需要被遠端協助的 Windows 電腦上下載 `RustDeskQS.exe`。
+1. 從本分支維護者發布的版本下載 `Kdesign_Remote_Support.exe`（如有發布）。
 2. 將執行檔放到固定資料夾後執行。
 3. 第一次執行會自動產生 `rustdesk_cpp_host.ini`、`en.txt`、`tw.txt`。
 4. 將程式顯示的 ID 與一次性密碼提供給協助者即可連入。
-5. 也可以自行設定自訂 ID、固定密碼、開機啟動、直接 IP 連線埠與自架 RustDesk Server。
+5. 使用 `rustdesk_cpp_host.ini` 設定本分支支援的主機與伺服器選項。本分支已移除上游的三點設定選單。
 6. 控制端可使用官方 RustDesk 用戶端連線。
 
 ## 適用情境
@@ -479,25 +491,20 @@ RustDesk QuickHost 是一個輕量化的 **RustDesk 相容 Host-only 被控端�
 * 輕量化單一執行檔
 * 支援 Windows XP / Windows 7 / Windows 10 / Windows 11 與 WinPE。
 * 已實測確認可於 Windows XP / 7 / 10 / 11 PE 環境中執行並成功連線。
-* 支援右下角常駐
-* 支援開機自動啟動
-* 支援固定密碼
-* 可停用隨機一次性密碼
-* 可自訂 RustDesk ID
 * 支援直接 IP 連線模式
 * 可自訂直接 IP 連線埠
 * 支援連入狀態顯示
 * 可顯示連入端 ID 或 IP 位址
 * 可從被控端主介面中斷目前連線
 * 使用 INI 設定檔
-* 可自訂 ID Server、Relay Server、API Server 與 Server Key
+* 使用 INI 設定伺服器；預設連線至 Kdesign ID 與 Relay 伺服器
 * 支援自架 RustDesk Server
 * 可強制走 Relay
 * 影片編碼自動判斷
 * 目前支援 H.264 與 VP8
 * 可設定 FPS 與影像位元率
-* 內建繁體中文與英文語言檔
-* 支援外部 `.txt` 自定義語言檔
+* 內建繁體中文與英文語言字串
+* 可透過 INI 設定語言檔
 * 第一次執行會自動產生 `rustdesk_cpp_host.ini`、`en.txt`、`tw.txt`
 
 ## 儲存庫結構
@@ -508,9 +515,15 @@ RustDesk QuickHost 是一個輕量化的 **RustDesk 相容 Host-only 被控端�
 * `docs/`：技術說明
 * `rustdesk_cpp_host.ini.example`：執行時設定檔範例
 
-本機編譯腳本未包含於儲存庫中，因為它們與作者本機建置環境高度相關。
+### 建置本分支
+
+本分支新增 CMake 設定與 preset、VS Code 建置工作、PowerShell 環境檢查腳本，以及適用於 XP 相容工具鏈的[Windows 建置說明](docs/build-windows.md)。目前已在維護者的電腦上成功建置；尚未在全新環境重新驗證，Windows XP 實機相容性也仍待測試。
+
+上游專案提供可下載的執行檔，但沒有提供這些建置腳本與說明。本分支新增的建置流程僅適用於本分支。另請注意，GPL-3.0 對執行檔散布的原始碼提供要求，不取決於上游是否提供建置說明；散布執行檔時，仍須依授權提供相應原始碼，包括控制編譯與安裝所需的腳本。建置說明不能取代提供授權要求的原始碼。
 
 ## 畫面截圖
+
+以下截圖來自上游 RustDesk QuickHost，介面可能與重新品牌化後的本分支不同。
 
 ### v1.1.0.0 連入狀態顯示
 
@@ -542,7 +555,7 @@ en.txt
 tw.txt
 ```
 
-預設產生的 `rustdesk_cpp_host.ini` 目前會連到 RustDesk 官方公開伺服器。
+預設產生的 `rustdesk_cpp_host.ini` 會連到 Kdesign ID Server `remote.kdesign-web.de:21116` 與 Relay Server `remote.kdesign-web.de:21117`。API Server 預設為空白；伺服器金鑰由程式預設值提供。
 
 使用者可以自行修改 `id_server`、`relay_server`、`api_server` 與 `key`，改成自己的 RustDesk 自架伺服器專用版本。
 
@@ -619,19 +632,18 @@ jp.txt
 language_file=jp.txt
 ```
 
-## 下載
+## 上游下載
 
-* Release 頁面：[Releases](https://github.com/Terence0816/RustDesk-QuickHost/releases)
-* 官方 `v1.1.2.3` 版本：[RustDeskQS.exe](https://github.com/Terence0816/RustDesk-QuickHost/releases/tag/V1.1.2.3)
-* GitHub Release Assets 會顯示目前官方版本的下載次數。
+* 上游 RustDesk QuickHost 版本：[Releases](https://github.com/Terence0816/RustDesk-QuickHost/releases)
+* 上游執行檔並非 Kdesign Support 版本。本分支的執行檔應從 Kdesign 分支維護者發布的版本取得。
 
 ## 安全性說明
 
-RustDesk QuickHost 是遠端協助 Host-only 被控端工具。
+Kdesign Support 是遠端協助 Host-only 被控端工具。
 
-由於程式包含遠端控制、網路連線、密碼、右下角常駐、開機啟動與直接 IP 連線等功能，部分防毒軟體可能將其歸類為風險工具或產生誤判。
+由於程式包含遠端控制、網路連線、密碼與直接 IP 連線等功能，部分防毒軟體可能將其歸類為風險工具或產生誤判。
 
-請只從本專案 GitHub Releases 官方頁面下載，並於使用前確認數位簽章與 SHA256 檢查碼。
+請只從您信任的發布來源下載執行檔；若發布者提供數位簽章與 SHA256 檢查碼，請於使用前驗證。
 
 ## 搜尋關鍵字
 
@@ -639,7 +651,7 @@ RustDesk 相容被控端、RustDesk Host-only、遠端協助工具、遠端桌�
 
 ## 免責聲明
 
-本專案為獨立實作。
+本專案是 RustDesk QuickHost 的獨立分支。
 
 本專案並非 RustDesk 官方用戶端，也未受到 RustDesk 官方維護、認可或背書。
 RustDesk 為其各自擁有者之商標。
@@ -650,4 +662,4 @@ RustDesk 為其各自擁有者之商標。
 
 ## 授權
 
-本儲存庫使用 GNU General Public License v3.0 授權，詳見 [LICENSE](LICENSE)。
+本分支及其修改內容使用 GNU General Public License v3.0 授權，詳見 [LICENSE](LICENSE)。
